@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('amount', 10, 2);
-            $table->string('transaction_id')->nullable(); 
+            $table->decimal('amount', 10, 2)->nullable();
+            $table->string('transaction_id')->unique()->nullable(); 
             $table->date('date')->default(DB::raw('CURRENT_DATE'));
             $table->string('status'); // pending, completed, failed
             $table->timestamps();
