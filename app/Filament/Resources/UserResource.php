@@ -20,10 +20,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Badge;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
 
 
 
@@ -42,9 +44,12 @@ class UserResource extends Resource
             TextInput::make('phone')->required(),
             TextInput::make('website')->url(),
             Textarea::make('address')->required(),
-            FileUpload::make('profile')->directory('users/profile')->image(),
-            //FileUpload::make('logo')->directory('users/logo')->image(),
-            // TextInput::make('role')->default('user')->readonly(),
+            FileUpload::make('profile')
+                ->disk('public')
+                ->directory('user/profile')
+                ->image(),
+
+
 
             Toggle::make('status')
                 ->label('Active')
@@ -81,8 +86,6 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')->searchable(),
                 Tables\Columns\TextColumn::make('phone')->searchable(),
                 Tables\Columns\TextColumn::make('website')->searchable(),
-                Tables\Columns\TextColumn::make('profile')->searchable(),
-                //Tables\Columns\TextColumn::make('logo')->searchable(),
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
@@ -92,18 +95,12 @@ class UserResource extends Resource
                     ->sortable()
                     ->label('Status'),
 
+                ImageColumn::make('profile')
+                    ->disk('public')
+                    ->circular()
+                    ->size(40)
+                    ->label('Profile')
 
-                // Tables\Columns\TextColumn::make('email_verified_at')
-                //     ->dateTime()
-                //     ->sortable(),
-                // Tables\Columns\TextColumn::make('created_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('updated_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
 

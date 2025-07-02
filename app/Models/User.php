@@ -24,7 +24,7 @@ class User extends Authenticatable
         'address',
         'website',
         'logo',
-        'logo2',
+        'profile',
         'status',
         'role',
         'password',
@@ -52,4 +52,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
 }
