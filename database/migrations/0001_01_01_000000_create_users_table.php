@@ -20,10 +20,10 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->string('logo')->nullable();
-            $table->string('logo2')->nullable();
+            $table->string('profile')->nullable();
             $table->string('website')->nullable();
-            $table->string('role')->nullable();
-            $table->string('status')->nullable();
+            $table->string('role')->nullable()->default('user');
+            $table->string('status')->nullable()->default('active');
             $table->rememberToken();
             $table->timestamps();
         });

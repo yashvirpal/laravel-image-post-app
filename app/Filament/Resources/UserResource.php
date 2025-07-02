@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 
 
+
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
@@ -37,32 +38,34 @@ class UserResource extends Resource
 
         return $form->schema([
             TextInput::make('name')->required(),
-            TextInput::make('email')->email()->required(),
+            TextInput::make('email')->email()->required()->unique(ignoreRecord: true),
             TextInput::make('phone')->required(),
-            Textarea::make('address')->required(),
-            FileUpload::make('logo')->directory('users/logos')->image(),
-            //FileUpload::make('logo2')->directory('users/logos')->image(),
             TextInput::make('website')->url(),
-
+            Textarea::make('address')->required(),
+            FileUpload::make('profile')->directory('users/profile')->image(),
+            //FileUpload::make('logo')->directory('users/logo')->image(),
+            // TextInput::make('role')->default('user')->readonly(),
 
             Toggle::make('status')
                 ->label('Active')
-                ->default(true)
-                ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive')
-                ->afterStateHydrated(fn($component, $state) => $component->state($state === 'active'))
+                ->default(true) // UI: toggle ON by default
+                ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive') // Save as 'active'/'inactive'
+                ->afterStateHydrated(
+                    fn($component, $state) =>
+                    $component->state($state === 'active' || $state === null) // Handle first load + existing data
+                )
+                ->dehydrated() // 🔑 Ensures it’s always saved
                 ->required(),
 
-            TextInput::make('password')
-                ->default(bcrypt('password'))
-                ->hidden()
-                ->dehydrated(fn($state) => filled($state))
-                ->required(fn(string $context) => $context === 'create'),
 
 
-            TextInput::make('role')
-                ->default('user')
-                ->hidden()
-                ->dehydrated(),
+            // TextInput::make('password')
+            //     ->hidden()
+            //     ->dehydrated(false), // <- you can skip saving from form
+
+            // TextInput::make('role')
+            //     ->hidden()
+            //     ->dehydrated(false),
 
 
 
@@ -78,7 +81,8 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')->searchable(),
                 Tables\Columns\TextColumn::make('phone')->searchable(),
                 Tables\Columns\TextColumn::make('website')->searchable(),
-                Tables\Columns\TextColumn::make('logo')->searchable(),
+                Tables\Columns\TextColumn::make('profile')->searchable(),
+                //Tables\Columns\TextColumn::make('logo')->searchable(),
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
@@ -155,5 +159,10 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('role', 'user'); // ✅ Filter here
     }
 }
