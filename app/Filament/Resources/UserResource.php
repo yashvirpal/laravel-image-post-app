@@ -26,7 +26,8 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
-
+use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\Rule;
 
 
 class UserResource extends Resource
@@ -47,7 +48,14 @@ class UserResource extends Resource
             FileUpload::make('profile')
                 ->disk('public')
                 ->directory('user/profile')
-                ->image(),
+                ->image()
+                ->required()->imagePreviewHeight('100') // Optional: nice preview size
+                    ->rules([
+                        'required',
+                        File::image()
+                            ->max(2048) // Max size in KB (2048 KB = 2MB)
+                            ->dimensions(Rule::dimensions()->width(1080)->height(1080)),
+                    ]),
 
 
 

@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\JpegEncoder;
+use Intervention\Image\Geometry\Circle;
+use Intervention\Image\Drawing\Style;
+
+
 
 
 class ImageService
@@ -25,8 +29,14 @@ class ImageService
         //dd($user, $event);
         // Load event image
         $eventImagePath = storage_path('app/public/' . $event->image);
+        $profileImagePath = storage_path('app/public/' . $user->profile);
+      
 
         $image = $this->imageManager->read($eventImagePath);
+
+        $profile = $this->imageManager->read($profileImagePath)->resize(100, 100);
+        $image->place($profile, 'top-left', 50, 50);
+
 
         // Add name
         $image->text("Name: {$user->name}", 100, 100, function ($font) {
@@ -41,6 +51,9 @@ class ImageService
             $font->size(50);
             $font->color('#FF0000');
         });
+
+
+
 
         $outputPath = "generated/user_{$user->id}_event_{$event->id}_" . time() . ".jpg";
 

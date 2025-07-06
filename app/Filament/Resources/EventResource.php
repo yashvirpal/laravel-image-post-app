@@ -21,6 +21,9 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\BadgeColumn;
+use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\Rule;
+
 
 class EventResource extends Resource
 {
@@ -37,7 +40,15 @@ class EventResource extends Resource
                 FileUpload::make('image')
                     ->disk('public')
                     ->directory('events')
-                    ->image(),
+                    ->image()
+                    ->required()
+                    ->imagePreviewHeight('100') // Optional: nice preview size
+                    ->rules([
+                        'required',
+                        File::image()
+                            ->max(2048) // Max size in KB (2048 KB = 2MB)
+                            ->dimensions(Rule::dimensions()->width(1080)->height(1080)),
+                    ])
             ]);
     }
 
@@ -47,7 +58,7 @@ class EventResource extends Resource
             ->columns([
                 ImageColumn::make('image')
                     ->disk('public')
-                   // ->circular()
+                    // ->circular()
                     ->size(70)
                     ->label('Image'),
                 TextColumn::make('name')->searchable()->sortable(),
