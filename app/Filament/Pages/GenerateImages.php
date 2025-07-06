@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Pages;
 
 use App\Models\Event;
@@ -11,14 +12,15 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
 
-class GenerateEventImages extends Page implements HasForms
+class GenerateImages extends Page implements HasForms
 {
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
-    protected static string $view = 'filament.pages.generate-event-images';
-    protected static ?string $title = 'Generate Festival Images';
-    
+    protected static string $view = 'filament.pages.generate-images';
+    protected static ?string $title = 'Generate Images';
+
+
 
     public ?int $event_id = null;
     public array $user_ids = [];
@@ -46,6 +48,14 @@ class GenerateEventImages extends Page implements HasForms
 
     public function generate(UserEventImageService $service)
     {
+        $data = validator([
+            'event_id' => $this->event_id,
+            'user_ids' => $this->user_ids,
+        ], [
+            'event_id' => ['required', 'exists:events,id'],
+            'user_ids' => ['required', 'array', 'min:1'],
+            'user_ids.*' => ['exists:users,id'],
+        ])->validate();
         $event = Event::findOrFail($this->event_id);
         $users = User::whereIn('id', $this->user_ids)->get();
 
@@ -66,4 +76,3 @@ class GenerateEventImages extends Page implements HasForms
     //     ];
     // }
 }
-
