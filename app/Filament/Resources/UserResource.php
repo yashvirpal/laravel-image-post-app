@@ -53,8 +53,8 @@ class UserResource extends Resource
                     ->rules([
                         'required',
                         File::image()
-                            ->max(2048) // Max size in KB (2048 KB = 2MB)
-                            ->dimensions(Rule::dimensions()->width(1080)->height(1080)),
+                            ->max(1024) // Max size in KB (2048 KB = 2MB)
+                            ->dimensions(Rule::dimensions()->width(600)->height(600)),
                     ]),
 
 
