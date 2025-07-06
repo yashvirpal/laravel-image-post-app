@@ -7,6 +7,8 @@ use App\Models\Event;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Encoders\JpegEncoder;
+
 
 class ImageService
 {
@@ -28,22 +30,25 @@ class ImageService
 
         // Add name
         $image->text("Name: {$user->name}", 100, 100, function ($font) {
-           // $font->filename(public_path('fonts/OpenSans-Bold.ttf'));
-            $font->size(36);
-            $font->color('#ffffff');
+            // $font->filename(public_path('fonts/OpenSans-Bold.ttf'));
+            $font->size(56);
+            $font->color('#FF0000');
         });
 
         // Add phone
         $image->text("Phone: {$user->phone}", 100, 160, function ($font) {
-           // $font->filename(public_path('fonts/OpenSans-Regular.ttf'));
-            $font->size(24);
-            $font->color('#ffffff');
+            // $font->filename(public_path('fonts/OpenSans-Regular.ttf'));
+            $font->size(50);
+            $font->color('#FF0000');
         });
 
-        // Save to public disk
-        $outputPath = "public/generated/{$event->id}/user_{$user->id}.jpg";
-        Storage::put($outputPath, (string) $image->toJpeg());
+        $outputPath = "generated/user_{$user->id}_event_{$event->id}_" . time() . ".jpg";
 
-        return Storage::url($outputPath); // e.g., /storage/generated/1/user_5.jpg
+        Storage::disk('public')->put(
+            $outputPath,
+            $image->encode(new JpegEncoder(quality: 90))
+        );
+
+        return Storage::url($outputPath);
     }
 }
