@@ -26,17 +26,17 @@ class ImageService
 
     public function generate(User $user, Event $event): string
     {
-        //dd($user, $event);
-        // Load event image
         $eventImagePath = storage_path('app/public/' . $event->image);
         $profileImagePath = storage_path('app/public/' . $user->profile);
-      
+
 
         $image = $this->imageManager->read($eventImagePath);
 
+
+        //$profile = $this->imageManager->read($profileImagePath)->cover(100, 100);
+
         $profile = $this->imageManager->read($profileImagePath)->resize(100, 100);
         $image->place($profile, 'top-left', 50, 50);
-
 
         // Add name
         $image->text("Name: {$user->name}", 100, 100, function ($font) {
