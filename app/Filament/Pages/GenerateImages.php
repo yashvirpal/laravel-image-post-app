@@ -4,13 +4,16 @@ namespace App\Filament\Pages;
 
 use App\Models\Event;
 use App\Models\User;
-use App\Services\UserEventImageService;
+use App\Services\ImageService;
 use Filament\Pages\Page;
 use Filament\Forms;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Notifications\Notification;
+
+
 
 class GenerateImages extends Page implements HasForms
 {
@@ -46,7 +49,7 @@ class GenerateImages extends Page implements HasForms
         ];
     }
 
-    public function generate(UserEventImageService $service)
+    public function generate(ImageService $service)
     {
         $data = validator([
             'event_id' => $this->event_id,
@@ -63,7 +66,14 @@ class GenerateImages extends Page implements HasForms
             $service->generate($user, $event);
         }
 
-        $this->notify('success', 'Images generated successfully!');
+
+
+
+        Notification::make()
+            ->title('Success!')
+            ->body('Images generated successfully!')
+            ->success()
+            ->send();
     }
 
     // protected function getFormActions(): array
