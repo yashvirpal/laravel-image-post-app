@@ -1,42 +1,57 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\Geometry\Factories\CircleFactory;
-
 
 Route::get('/image-compose', function () {
     $manager = new ImageManager(new Driver());
 
-    $userimg = storage_path('app/public/user/profile/01JZFRXAER8DBD6JQMHAS85GVG.png');
-    $evntimg = storage_path('app/public/events/01JZDYB6PT66DGDABCM8THJ17W.png');
-  
-    if (!file_exists($userimg)) {
-        abort(404, 'userimg image not found');
+    $userimgPath = storage_path('app/public/user/profile/01JZFRXAER8DBD6JQMHAS85GVG.png');
+    $evntimgPath = storage_path('app/public/events/01JZDYB6PT66DGDABCM8THJ17W.png');
+
+    if (!file_exists($userimgPath)) {
+        abort(404, 'User image not found');
     }
-    if (!file_exists($evntimg)) {
-        abort(404, 'evntimg image not found');
+    if (!file_exists($evntimgPath)) {
+        abort(404, 'Event image not found');
     }
 
+    // Load event background
+    $base = $manager->read($evntimgPath);
 
-    $img = $manager->read($evntimg);
+    // Load and resize user image to square
+    $user = $manager->read($userimgPath)->resize(200, 200);
 
-    $overlay = $manager->read($userimg);
+    // Create a transparent canvas
+    $circleCanvas = $manager->create(200, 200)->fill('rgba(0,0,0,0)');
 
-    $overlay->drawCircle(100, 100, function (CircleFactory $circle) {
-        $circle->radius(150); // radius of circle in pixels
-        // $circle->background('lightblue'); // background color
-        $circle->border('b53717', 1); // border color & size
-    });
+    // Manual pixel-copy circular crop (GD only workaround)
+    $centerX = 100;
+    $centerY = 100;
+    $radius = 100;
 
-    $img->place($overlay, 'top-left', 30, 30);
+    for ($y = 0; $y < 200; $y++) {
+        for ($x = 0; $x < 200; $x++) {
+            $dx = $x - $centerX;
+            $dy = $y - $centerY;
+            if (($dx * $dx + $dy * $dy) <= ($radius * $radius)) {
+                $color = $user->pickColor($x, $y);
+                $circleCanvas->drawPixel($x, $y, $color);
+            }
+        }
+    }
 
-    // Output image as PNG respon
-    $encoded = $img->encodeByMediaType('image/png');
-    $img->save(storage_path('app/public/circle-crop11.png'));
+    // Place the circular-cropped user image onto the base event image
+    $base->place($circleCanvas, 'top-left', 30, 30);
 
-    return response()->file(storage_path('app/public/circle-crop11.png'));
+    // Save final image
+    $outputPath = storage_path('app/public/circle-crop11.png');
+    $base->save($outputPath, quality: 90, format: 'png');
+
+    return response()->file($outputPath);
 });
 
 
