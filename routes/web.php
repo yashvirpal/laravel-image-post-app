@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Route;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::get('/image-compose', function () {
     $manager = new ImageManager(new Driver());
 
@@ -48,7 +53,7 @@ Route::get('/image-compose', function () {
     $base->place($circleCanvas, 'top-left', 30, 30);
 
     // Save final image
-    $outputPath = storage_path('app/public/circle-crop11.png');
+    $outputPath = storage_path('app/public/circle-crop111.png');
     $base->save($outputPath, quality: 90, format: 'png');
 
     return response()->file($outputPath);
@@ -58,24 +63,24 @@ Route::get('/image-compose', function () {
 
 
 
-Route::get('/circle-crop', function () {
+// Route::get('/circle-crop', function () {
 
 
 
-    $filePath = storage_path('app/public/user/profile/01JZFRXAER8DBD6JQMHAS85GVG.png');
-    $size = 200;
+//     $filePath = storage_path('app/public/user/profile/01JZFRXAER8DBD6JQMHAS85GVG.png');
+//     $size = 200;
 
-    $manager = new ImageManager(Driver::class); // Correct instantiation
+//     $manager = new ImageManager(Driver::class); // Correct instantiation
 
-    $image = $manager->read($filePath);
+//     $image = $manager->read($filePath);
 
-    $image->drawCircle(100, 100, function (CircleFactory $circle) {
-        $circle->radius(150); // radius of circle in pixels
-        $circle->background('lightblue'); // background color
-        $circle->border('b53717', 1); // border color & size
-    });
-    $encoded = $image->encodeByMediaType('image/gif');
-    $image->save(storage_path('app/public/circle-crop.png'));
+//     $image->drawCircle(100, 100, function (CircleFactory $circle) {
+//         $circle->radius(150); // radius of circle in pixels
+//         $circle->background('lightblue'); // background color
+//         $circle->border('b53717', 1); // border color & size
+//     });
+//     $encoded = $image->encodeByMediaType('image/gif');
+//     $image->save(storage_path('app/public/circle-crop.png'));
 
-    return response()->file(storage_path('app/public/circle-crop.png'));
-});
+//     return response()->file(storage_path('app/public/circle-crop.png'));
+// });
