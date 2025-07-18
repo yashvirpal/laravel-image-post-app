@@ -3,32 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
-
-
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Badge;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
-use Filament\Tables\Columns\BooleanColumn;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Illuminate\Validation\Rules\File;
-use Illuminate\Validation\Rule;
 
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class UserResource extends Resource
 {
@@ -49,13 +41,27 @@ class UserResource extends Resource
                 ->disk('public')
                 ->directory('user/profile')
                 ->image()
-                ->required()->imagePreviewHeight('100') // Optional: nice preview size
+                ->required()
+                ->imagePreviewHeight('100') // Optional: nice preview size
                     ->rules([
                         'required',
-                        File::image()
-                            ->max(1024) // Max size in KB (2048 KB = 2MB)
-                            ->dimensions(Rule::dimensions()->width(600)->height(600)),
-                    ]),
+                        'image',
+                        'max:1024', // 2MB
+                    ])
+                    ->preserveFilenames() // optional, or remove for unique name
+                    ->saveUploadedFileUsing(function ($file, $state) {
+                        $manager = new ImageManager(new Driver());
+
+                        $image = $manager->read($file->getRealPath());
+
+                        $image->resize(500, 500);
+
+                        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+                        Storage::disk('public')->put('users/' . $filename, (string) $image->encode());
+
+                        return 'users/' . $filename;
+                    }),
 
 
 

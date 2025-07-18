@@ -3,27 +3,22 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EventResource\Pages;
-use App\Filament\Resources\EventResource\RelationManagers;
 use App\Models\Event;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Illuminate\Validation\Rules\File;
-use Illuminate\Validation\Rule;
 
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class EventResource extends Resource
 {
@@ -45,10 +40,24 @@ class EventResource extends Resource
                     ->imagePreviewHeight('100') // Optional: nice preview size
                     ->rules([
                         'required',
-                        File::image()
-                            ->max(2048) // Max size in KB (2048 KB = 2MB)
-                            ->dimensions(Rule::dimensions()->width(1080)->height(1080)),
+                        'image',
+                        'max:1024', // 2MB
                     ])
+                    ->preserveFilenames() // optional, or remove for unique name
+                   // ->storeFileNamesIn('image') // or just handle normally
+                    ->saveUploadedFileUsing(function ($file, $state) {
+                        $manager = new ImageManager(new Driver());
+
+                        $image = $manager->read($file->getRealPath());
+
+                        $image->resize(1080, 1080);
+
+                        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+                        Storage::disk('public')->put('events/' . $filename, (string) $image->encode());
+
+                        return 'events/' . $filename;
+                    })
             ]);
     }
 
