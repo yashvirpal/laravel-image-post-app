@@ -4,15 +4,8 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Event;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\Encoders\JpegEncoder;
-use Intervention\Image\Geometry\Circle;
-use Intervention\Image\Drawing\Style;
-
-
-
 
 class ImageService
 {
