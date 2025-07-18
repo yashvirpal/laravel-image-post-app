@@ -13,6 +13,8 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Notifications\Notification;
 
+use App\Services\MetaWhatsAppService;
+
 
 
 class GenerateImages extends Page implements HasForms
@@ -67,6 +69,18 @@ class GenerateImages extends Page implements HasForms
         }
 
 
+
+$whatsapp = new MetaWhatsAppService();
+
+$to = '15551234567'; // recipient phone number (country code + number, no '+' sign)
+$message = 'Hello from Laravel using Meta WhatsApp API!';
+
+try {
+    $response = $whatsapp->sendTextMessage($to, $message);
+    dd($response);
+} catch (\Exception $e) {
+    dd($e->getMessage());
+}
 
 
         Notification::make()
