@@ -43,7 +43,7 @@ class GenerateImages extends Page implements HasForms
 
             CheckboxList::make('user_ids')
                 ->label('Select Users')
-                ->options(User::where('role', 'user')->pluck('name', 'id'))
+                ->options(User::where('role', 'user')->where('status', 'active')->pluck('name', 'id'))
                 ->columns(2)
                 ->required(),
         ];
